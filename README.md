@@ -1,5 +1,13 @@
 # hola esta
 Una simple
 
---prueba--
+## prueba
 sin ninguna pretencioan
+
+```javascript
+var r=function(data){
+  if(data)
+    return data
+  return {}
+}
+```
