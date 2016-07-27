@@ -2,4 +2,7 @@ tara!
 
 pata ti 
 
-pata tara
+
+
+
+Como escogí un txt esto si no tiene markdown que valga
