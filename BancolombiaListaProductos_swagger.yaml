@@ -1,0 +1,104 @@
+swagger: '2.0'
+info:
+  title: Ejemplo Productos Bancolombia
+  description: >-
+    Simple demostracion de API para productos Bancolombia. Descrito en swagger
+    en base a WSDL leido de
+    https://201.221.124.199:59049/intf/ConsultarListaProductos/Enlace/V1.0.wsdl
+  version: 1.0.0
+schemes:
+  - https
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /products:
+    get:
+      summary: lista de productos de un cliente
+      description: >
+        Es la lista de los productos de un cliente identificado por tipo de
+        documento y numero de documento
+      parameters:
+        - name: tipoDni
+          in: query
+          description: tipo documento con valores posibles CC TI CE XX.
+          required: true
+          type: string
+        - name: dni
+          in: query
+          description: numero de documento
+          required: true
+          type: number
+          format: double
+      responses:
+        '200':
+          description: >-
+            lista de productos del cliente en Bancoombia (la realidad es que el
+            mock solo entrega un producto pero se mantiene la ensajeria multiple
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /me:
+    get:
+      summary: Perfil de usuario Bancolombia
+      description: Usuario que consulta.
+      responses:
+        '200':
+          description: Profile information for a user
+          schema:
+            $ref: '#/definitions/Profile'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Product:
+    type: object
+    properties:
+      codigo:
+        type: string
+        description: Codigo de producto
+      nombre:
+        type: string
+        description: Nombre del producto.
+      descripcion:
+        type: string
+        description: Descripcion del producto.
+      organizacion:
+        type: string
+        description: 'organizacion dentro de Sinergia (Bancolombia, SURA, Proteccion)'
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
+  Profile:
+    type: object
+    properties:
+      nombre:
+        type: string
+        description: Nombre usuario.
+      apellido:
+        type: string
+        description: Apellido
+      email:
+        type: string
+        description: correo electronico
+      picture:
+        type: string
+        description: foto.
+      organizacionOrigen:
+        type: string
+        description: >-
+          organizacion en la que se autentico inicialmente dentro de Sinergia
+          (Bancolombia, SURA, Proteccion)

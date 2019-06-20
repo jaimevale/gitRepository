@@ -1,0 +1,526 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "PSE Pagos Portal",
+        "description": "PSE Pagos Portal",
+        "version": "1.0.2",
+        "contact": {
+            "email": "omlaverde@vc-soft.com"
+        }
+    },
+    "externalDocs": {
+        "description": "Más información de VCSOFT",
+        "url": "http://www.vc-soft.com"
+    },
+    "host": "portal.vc-soft.com:10039",
+    "basePath": "/wps/PA_PSEAesVoluntarios2/pse",
+    "schemes": [
+        "http"
+    ],
+    "tags": [
+        {
+            "name": "info",
+            "description": "Informacion del servicio."
+        },
+        {
+            "name": "user",
+            "description": "Informacion del usuario autenticado."
+        },
+        {
+            "name": "bank",
+            "description": "Informacion de entidades financieras."
+        },
+        {
+            "name": "payment",
+            "description": "Transacciones de pagos PSE."
+        }
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/info": {
+            "get": {
+                "tags": [
+                    "info"
+                ],
+                "summary": "Informacion del servicio.",
+                "description": "Informacion del servicio, versión y fecha del servidor.",
+                "operationId": "getInfo",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile information for a user",
+                        "schema": {
+                            "$ref": "#/definitions/ServiceInfo"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Informacion del usuario.",
+                "description": "Información del usuario autenticado, login, email y datos personales.",
+                "operationId": "getUserProfile",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "Cookie",
+                        "required": true,
+                        "type": "string",
+                        "description": "Header HTTP de cookies."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profile information for a user",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/banks": {
+            "get": {
+                "tags": [
+                    "bank"
+                ],
+                "summary": "Lista de bancos",
+                "description": "Lista de bancos o entidades financieras",
+                "operationId": "getBankList",
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Bank"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/payments": {
+            "get": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Lista de pagos",
+                "description": "Lista de pagos ordenados por creacion descendente, con paginacion iniciando en uno",
+                "operationId": "getPaymentList",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "pagenum",
+                        "default": 1,
+                        "description": "Numero de pagina",
+                        "required": true,
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/PaymentQuery"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment": {
+            "post": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Inicio de pago",
+                "description": "Inicia la transaccion de un nuevo pago",
+                "operationId": "beginPayment",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "formData",
+                        "name": "bankId",
+                        "description": "Banco.",
+                        "type": "string",
+                        "required": true
+                    },
+                    {
+                        "in": "formData",
+                        "name": "amount",
+                        "description": "Valor.",
+                        "type": "number",
+                        "format": "double",
+                        "required": true
+                    },
+                    {
+                        "in": "formData",
+                        "name": "contractId",
+                        "description": "Id del producto.",
+                        "type": "string",
+                        "maxLength": 20,
+                        "required": true
+                    },
+                    {
+                        "in": "formData",
+                        "name": "retryTicketId",
+                        "description": "TicketId, si se hace un reintento.",
+                        "type": "string",
+                        "maxLength": 35,
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Payment"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment/{ticketId}": {
+            "get": {
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Informacion de un pago",
+                "description": "Informacion de un pago",
+                "operationId": "getPaymentById",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ticketId",
+                        "required": true,
+                        "type": "string",
+                        "maxLength": 35,
+                        "description": "Id local del pago, solo digitos."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "$ref": "#/definitions/Payment"
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ServiceInfo": {
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Nombre del servicio."
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Versión del servicio."
+                },
+                "author": {
+                    "type": "string",
+                    "description": "Creador del servicio."
+                },
+                "serverDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha del servidor."
+                }
+            }
+        },
+        "User": {
+            "properties": {
+                "login": {
+                    "type": "string",
+                    "description": "Login de usuario que realiza el pago.",
+                    "maxLength": 128
+                },
+                "typeId": {
+                    "$ref": "#/definitions/IdentificationType"
+                },
+                "id": {
+                    "type": "integer",
+                    "format": "int64",
+                    "description": "Cedula o NIT del usuario."
+                },
+                "personType": {
+                    "$ref": "#/definitions/PersonType"
+                },
+                "firstName1": {
+                    "type": "string",
+                    "description": "Primer nombre."
+                },
+                "firstName2": {
+                    "type": "string",
+                    "description": "Segundo nombre."
+                },
+                "lastName1": {
+                    "type": "string",
+                    "description": "Primer apellido."
+                },
+                "lastName2": {
+                    "type": "string",
+                    "description": "Segundo apellido."
+                },
+                "email": {
+                    "type": "string",
+                    "description": "Email address of the  user"
+                }
+            }
+        },
+        "PersonType": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 1,
+                    "description": "Tipo de persona, natural (0) o juridica (1).",
+                    "enum": [
+                        0,
+                        1
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "IdentificationType": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "description": "Tipo de identificacion."
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Bank": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Codigo de banco origen del pago."
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "PaymentStatus": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "default": "CREATED",
+                    "description": "Estado del pago CREATED, SENT,PENDING,OK,NOT_AUTHORIZED,FAILED",
+                    "enum": [
+                        "CREATED",
+                        "SENT",
+                        "PENDING",
+                        "OK",
+                        "NOT_AUTHORIZED",
+                        "FAILED"
+                    ]
+                },
+                "name": {
+                    "type": "string"
+                },
+                "terminal": {
+                    "type": "boolean",
+                    "description": "Indica si el estado es final."
+                }
+            }
+        },
+        "ACHResponse": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "maxLength": 1,
+                    "description": "Codigo de respuesta ACH."
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Payment": {
+            "properties": {
+                "ticketId": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Id local del pago, solo digitos."
+                },
+                "trazabilityId": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "description": "Id ACH del pago."
+                },
+                "creationDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de creación del pago o de envío a ACH."
+                },
+                "user": {
+                    "$ref": "#/definitions/User"
+                },
+                "bank": {
+                    "$ref": "#/definitions/Bank"
+                },
+                "amount": {
+                    "type": "number",
+                    "format": "double",
+                    "description": "Valor monetario del pago."
+                },
+                "description": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "Descripcion del pago."
+                },
+                "cycle": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "description": "Ciclo de ACH."
+                },
+                "contractId": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "description": "Numero de contrato o producto para aporte voluntario."
+                },
+                "ref1": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "Referencia del pago 1."
+                },
+                "ref2": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "Referencia del pago 2."
+                },
+                "ref3": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "Referencia del pago 3."
+                },
+                "bankURL": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "URL para redireccion del cliente."
+                },
+                "status": {
+                    "$ref": "#/definitions/PaymentStatus"
+                },
+                "changeStatusDate": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Fecha de cambio de estado."
+                },
+                "responseCode": {
+                    "$ref": "#/definitions/ACHResponse"
+                },
+                "ipSource": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "description": "IP de origen de transaccion."
+                },
+                "retryTicketId": {
+                    "type": "string",
+                    "maxLength": 35,
+                    "description": "Id local de un pago fallido que se reintenta."
+                }
+            }
+        },
+        "PaymentQuery": {
+            "properties": {
+                "pages": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "Cantidad de paginas"
+                },
+                "payments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Payment"
+                    }
+                }
+            }
+        },
+        "Error": {
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

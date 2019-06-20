@@ -1,0 +1,177 @@
+swagger: '2.0'
+info:
+  x-ibm-name: endeudamiento
+  title: Endeudamiento PYME
+  version: 1.0.0
+  description: Este es el microservicio de control de endeudamiento
+schemes:
+  - https
+host: $(catalog.host)
+basePath: pyme/credito/
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  clientIdHeader:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+security:
+  - clientIdHeader: []
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - invoke:
+          target-url: $(target-url)$(request.path)
+          title: consulta lista vigilancia
+          verb: POST
+      - invoke:
+          title: calculo riesgo
+          timeout: 60
+          verb: GET
+          cache-response: protocol
+          cache-ttl: 900
+          stop-on-error:
+            - null
+          version: 1.0.0
+  gateway: datapower-gateway
+paths:
+  /endeudamiento:
+    post:
+      responses:
+        '200':
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/Endeudamiento_Rs'
+        '412':
+          description: No se cumplen las Condiciones para creacion de deuda
+          schema:
+            $ref: '#/definitions/Errors'
+        '503':
+          description: Servicio no disponible
+          schema:
+            $ref: '#/definitions/Errors'
+      tags:
+        - deuda
+      summary: creacion deuda pyme
+      operationId: deuda
+      description: creacion deuda pyme descripcion
+      parameters:
+        - name: body
+          required: true
+          in: body
+          schema:
+            $ref: '#/definitions/Endeudamiento_Rq'
+          description: mensaje de creacion de deuda
+definitions:
+  Errors:
+    type: array
+    description: ''
+    items:
+      type: object
+      properties:
+        status:
+          type: string
+        source:
+          type: object
+          properties:
+            pointer:
+              type: string
+        title:
+          type: string
+        detail:
+          type: string
+    example: "[\r\n    {\r\n      \"status\": \"422\",\r\n      \"source\": { \"pointer\": \"/data/attributes/firstName\" },\r\n      \"title\":  \"Invalid Attribute\",\r\n      \"detail\": \"First name must contain at least three characters.\"\r\n    }\r\n  ]"
+  Endeudamiento:
+    properties:
+      secuencia:
+        type: integer
+        format: int32
+        example: '12345'
+      codigo:
+        properties: {}
+        type: string
+        example: AW1231
+      nombre:
+        properties: {}
+        type: string
+        example: Pago Impuestos
+      descripcion:
+        properties: {}
+        type: string
+        example: Prestamo para pago ICA y Retefuente
+      monto:
+        properties: {}
+        type: number
+        format: double
+        example: 20000000
+      montoDisponible:
+        properties: {}
+        type: number
+        format: double
+        example: 15000000
+      creacionFecha:
+        properties: {}
+        type: string
+        format: date-time
+        example: '2019-02-20'
+      montoAprobadoInicial:
+        properties: {}
+        type: number
+        format: double
+        example: 15000000
+      montoAprobadoDisponible:
+        properties: {}
+        type: number
+        format: double
+        example: 14500000
+      distribucion:
+        properties: {}
+        $ref: '#/definitions/Distribucion'
+    additionalProperties: false
+  Distribucion:
+    properties:
+      valorNominal:
+        type: number
+        format: double
+        example: 12000000
+      porcentajeFormula:
+        properties: {}
+        type: number
+        format: double
+        example: 79.65
+      porcentajeValor:
+        properties: {}
+        type: number
+        format: double
+        example: 80
+    additionalProperties: false
+    description: distribucion de prestamo
+  Endeudamiento_Rs:
+    properties:
+      data:
+        $ref: '#/definitions/Endeudamiento'
+      meta:
+        properties: {}
+        type: object
+      links:
+        properties: {}
+        type: object
+    additionalProperties: true
+    required:
+      - data
+  Endeudamiento_Rq:
+    properties:
+      data:
+        $ref: '#/definitions/Endeudamiento'
+      meta:
+        properties: {}
+        type: object
+    additionalProperties: true
+    required: []
+tags: []

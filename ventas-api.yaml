@@ -1,0 +1,1168 @@
+swagger: '2.0'
+info:
+  version: 1.1.0
+  title: Registro de las ventas en PS
+  description: >-
+    Registro de las ventas en PS
+
+    Este servicio se encarga de registrar las ventas en People Soft.
+
+    Adopta la mensajería definida por el WebService SOAP CK_VENTA Operación:
+    WS_VENTAREG
+  x-ibm-name: RegistroVentasPS
+  contact:
+    name: Jean Carlo Arevalo
+    email: jarevalo@vc-soft.com
+basePath: /erp/sales
+paths:
+  /venta-reg:
+    post:
+      tags:
+        - Sale
+      description: Obtener mensaje de respuesta del lote de ventas procesado
+      operationId: addSale
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: 200 OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Sale'
+        '400':
+          description: >-
+            La solicitud no pudo ser entendida o hacen falta parámetros
+            requeridos.
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: >-
+            La autorización ha fallado o el usuario no tiene permisos para la
+            operación solicitada.
+          schema:
+            $ref: '#/definitions/Error'
+        '404':
+          description: Recurso solicitado no fue encontrado por el sistema
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
+          description: Error interno del servidor. Intente de nuevo más tarde.
+        '503':
+          description: >-
+            El servicio no está disponible temporalmente. Intente de nuevo más
+            tarde.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Error'
+      parameters:
+        - name: ventRegREQ
+          required: false
+          in: body
+          schema:
+            $ref: '#/definitions/CK_VENTREG_REQ'
+definitions:
+  Error:
+    description: Entidad de error. Adopta JSON-API
+    type: object
+    properties:
+      code:
+        type: string
+      source:
+        type: object
+        properties:
+          pointer:
+            type: string
+      title:
+        type: string
+      detail:
+        type: string
+    example: " {\r\n      \"code\":   \"123\",\r\n      \"source\": { \"pointer\": \"/data/attributes/firstName\" },\r\n      \"title\":  \"Value is too short\",\r\n      \"detail\": \"First name must contain at least three characters.\"\r\n    }"
+  CK_VENTREG_REQ:
+    description: ''
+    type: object
+    properties:
+      CK_VENTREGREQ_WS:
+        type: object
+        properties:
+          FieldTypes:
+            type: object
+            properties:
+              CK_ROOT_WS:
+                type: object
+                properties:
+                  ERROR_FLAG:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  ERRNUM:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  ERROR_MESSAGE_TXT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  class:
+                    type: string
+                    xml:
+                      attribute: true
+              CK_TRANSAC_VTAS:
+                type: object
+                properties:
+                  CK_TRANSAC_GROUP:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  class:
+                    type: string
+                    xml:
+                      attribute: true
+              CK_VENTREGREQWS:
+                type: object
+                properties:
+                  TRANSACTION_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  BUSINESS_UNIT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SALE_DT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  EVENT_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_TIPO_VENTA:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  INV_ITEM_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  QTY_REQUESTED:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_MAL_ESTADO:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SOURCE_BUS_UNIT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CUST_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CUST_NAME:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  ADDRESS:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CITY:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  COUNTY:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  PHONE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  COMMENT_TEXT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SCHED_DATE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  INVOICE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  LIST_PRICE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  GROSS_EXTENDED_BSE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  NET_EXTENDED_BSE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  TOT_DISCOUNT_BSE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_DESC_ESCALAS:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  TAX_CD_VAT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  TAX_CD_VAT_PCT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  VAT_APPLICABILITY:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  VAT_BASIS_AMT_BSE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  VAT_AMT_BSE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  LC_VLR_IMP_CONSUMO:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_CONSEC:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SOLD_TO_CUST_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SOLD_TO_ADDR_NUM:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  BUSINESS_UNIT_FROM:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  LINE_SEQ_END:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_APROB_POS:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_AUTORIZADO1:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_AUTORIZADO2:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_AUTORIZADO3:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SERIAL_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  SHIP_TO_CUST_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  STORAGE_AREA:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_VTA_TARJETA:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_ORIGEN_FACT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  EXS_ITM_TAX_CATG:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  EXS_TAX_RATE_PCT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  EXS_TAX_AMT_RPT:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_OBSERVACIONES:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_DESCUENTO_1:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_TIPO_DESCUENTO:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_BONO_CAMBIO:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  CK_MOTIVO_ANU_DEV:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  class:
+                    type: string
+                    xml:
+                      attribute: true
+              PSCAMA:
+                type: object
+                properties:
+                  LANGUAGE_CD:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  AUDIT_ACTN:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  BASE_LANGUAGE_CD:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  MSG_SEQ_FLG:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  PROCESS_INSTANCE:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  PUBLISH_RULE_ID:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  MSGNODENAME:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        xml:
+                          attribute: true
+                  class:
+                    type: string
+                    xml:
+                      attribute: true
+          MsgData:
+            type: object
+            properties:
+              Transaction:
+                type: object
+                properties:
+                  CK_ROOT_WS:
+                    type: object
+                    properties:
+                      ERROR_FLAG:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      ERRNUM:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      ERROR_MESSAGE_TXT:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      CK_TRANSAC_VTAS:
+                        type: object
+                        properties:
+                          CK_TRANSAC_GROUP:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          CK_VENTREGREQWS:
+                            type: object
+                            properties:
+                              TRANSACTION_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              BUSINESS_UNIT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SALE_DT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              EVENT_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_TIPO_VENTA:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              INV_ITEM_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              QTY_REQUESTED:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_MAL_ESTADO:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SOURCE_BUS_UNIT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CUST_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CUST_NAME:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              ADDRESS:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CITY:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              COUNTY:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              PHONE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              COMMENT_TEXT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SCHED_DATE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              INVOICE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              LIST_PRICE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              GROSS_EXTENDED_BSE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              NET_EXTENDED_BSE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              TOT_DISCOUNT_BSE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_DESC_ESCALAS:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              TAX_CD_VAT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              TAX_CD_VAT_PCT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              VAT_APPLICABILITY:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              VAT_BASIS_AMT_BSE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              VAT_AMT_BSE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              LC_VLR_IMP_CONSUMO:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_CONSEC:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SOLD_TO_CUST_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SOLD_TO_ADDR_NUM:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              BUSINESS_UNIT_FROM:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              LINE_SEQ_END:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_APROB_POS:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_AUTORIZADO1:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_AUTORIZADO2:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_AUTORIZADO3:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SERIAL_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              SHIP_TO_CUST_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              STORAGE_AREA:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_VTA_TARJETA:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_ORIGEN_FACT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              EXS_ITM_TAX_CATG:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              EXS_TAX_RATE_PCT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              EXS_TAX_AMT_RPT:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_OBSERVACIONES:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_DESCUENTO_1:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_TIPO_DESCUENTO:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_BONO_CAMBIO:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              CK_MOTIVO_ANU_DEV:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              class:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          PSCAMA:
+                            type: object
+                            properties:
+                              LANGUAGE_CD:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              AUDIT_ACTN:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              BASE_LANGUAGE_CD:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              MSG_SEQ_FLG:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              PROCESS_INSTANCE:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              PUBLISH_RULE_ID:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              MSGNODENAME:
+                                type: string
+                                properties:
+                                  IsChanged:
+                                    type: string
+                                    xml:
+                                      attribute: true
+                              class:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          class:
+                            type: string
+                            xml:
+                              attribute: true
+                      PSCAMA:
+                        type: object
+                        properties:
+                          LANGUAGE_CD:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          AUDIT_ACTN:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          BASE_LANGUAGE_CD:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          MSG_SEQ_FLG:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          PROCESS_INSTANCE:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          PUBLISH_RULE_ID:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          MSGNODENAME:
+                            type: string
+                            properties:
+                              IsChanged:
+                                type: string
+                                xml:
+                                  attribute: true
+                            xml:
+                              namespace: ''
+                          class:
+                            type: string
+                            xml:
+                              attribute: true
+                      class:
+                        type: string
+                        xml:
+                          attribute: true
+                  PSCAMA:
+                    type: object
+                    properties:
+                      LANGUAGE_CD:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      AUDIT_ACTN:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      BASE_LANGUAGE_CD:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      MSG_SEQ_FLG:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      PROCESS_INSTANCE:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      PUBLISH_RULE_ID:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      MSGNODENAME:
+                        type: string
+                        properties:
+                          IsChanged:
+                            type: string
+                            xml:
+                              attribute: true
+                      class:
+                        type: string
+                        xml:
+                          attribute: true
+    required:
+      - CK_VENTREGREQ_WS
+x-ibm-configuration: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
