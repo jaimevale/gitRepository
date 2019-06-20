@@ -1,0 +1,808 @@
+---
+swagger: "2.0"
+info:
+  title: "Gwe-Account ALM - Balance Query"
+  description: "Esta API permite consultar el saldo disponible de una cuenta de Ahorro\
+    \ a La Mano"
+  contact:
+    name: "Bancolombia API Working Group"
+    email: "apigroup@bancolombia.com.co"
+    url: "https://developer.bancolombia.com/contact"
+  termsOfService: ""
+  version: "1.0.1"
+  x-ibm-name: "gwe-account-alm-balance-query"
+host: "$(catalog.host)"
+basePath: "/gwe/v1/operations/product-specific/deposits"
+securityDefinitions:
+  OAuth - Provider for ALM:
+    type: "oauth2"
+    description: "Proveedor de OAuth para Ahorro a La Mano"
+    flow: "application"
+    scopes:
+      Deposit-account:read:user: "Información relacionada a cuentas deposito de clientes"
+    x-tokenIntrospect:
+      url: ""
+    tokenUrl: "https://api.us.apiconnect.ibmcloud.com/bancolombiabluemix-dev/$(catalogName)/gwe/v1/security/oauth-alm/oauth2/token"
+paths:
+  /account-balances/actions/search:
+    post:
+      summary: "Consultar saldo disponible de una cuenta ALM"
+      description: "Permite consultar el saldo disponible de una cuenta de Ahorro\
+        \ a La Mano"
+      x-ibm-languages:
+        summary:
+          en: "Get the available balance from a customer account."
+        description:
+          en: "It allows to get the available balance from customer."
+      parameters:
+      - name: "client-ip-address"
+        type: "string"
+        required: true
+        in: "header"
+        description: "Ip del dispositivo cliente que hace la solicitud Ej: 127.0.0.1"
+        minLength: 7
+        maxLength: 15
+      - name: "request-date"
+        type: "string"
+        required: true
+        in: "header"
+        description: "Fecha de la solicitud en formato YYYY-MM-DDThh:mm:ss Ej: 2019-01-11T14:30:42"
+      - name: "message-id"
+        type: "string"
+        required: true
+        in: "header"
+        description: "Identificador único de transacción Ej: 390440001201"
+        maxLength: 12
+        minLength: 1
+      - name: "echo"
+        type: "string"
+        required: false
+        in: "header"
+        description: "Identificador de mensaje para trazabilidad entre consumidor\
+          \ y la API. Es prefible que sea un UUID Ej: c4f29ea6-bbd8-43b2-9ad9-645516c7a468"
+        maxLength: 36
+        minLength: 12
+      - name: "requestBody"
+        in: "body"
+        required: true
+        description: "Información de la cuenta a consultar"
+        schema:
+          $ref: "#/definitions/requestBody"
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/successResponse"
+          description: "Respuesta exitosa"
+          x-ibm-languages:
+            description:
+              en: "Success Response"
+          headers:
+            X-API-Version:
+              type: "number"
+              format: "float"
+              description: "Versionamiento semantico de la API"
+              x-ibm-languages:
+                description:
+                  en: "Semantic versioning of the API"
+            X-RateLimit-Limit:
+              type: "integer"
+              description: "Límite de solicitudes por hora"
+              x-ibm-languages:
+                description:
+                  en: "Resquest limit per hour"
+        400:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "La solicitud no pudo ser entendida o hacen falta parámetros\
+            \ requeridos."
+          x-ibm-languages:
+            description:
+              en: "The request could not been understood or there are required parameters\
+                \ missing."
+        401:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "La autorización ha fallado o el usuario no tiene permisos\
+            \ para la operación solicitada."
+          x-ibm-languages:
+            description:
+              en: "Authorization has failed or the user does not have permissions\
+                \ for the requested operation."
+        404:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Recurso solicitado no fue encontrado por el sistema"
+          x-ibm-languages:
+            description:
+              en: "The requested resource was not found by the system."
+        500:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "Error interno del servidor. Intente de nuevo más tarde."
+          x-ibm-languages:
+            description:
+              en: "Internal Server Error. Try again later."
+        503:
+          schema:
+            $ref: "#/definitions/failure"
+          description: "El servicio no está disponible temporalmente. Intente de nuevo\
+            \ más tarde."
+          x-ibm-languages:
+            description:
+              en: "The service is temporarily unavailable. Try again later."
+      tags:
+      - "Accounts ALM"
+      security:
+      - OAuth - Provider for ALM:
+        - "Deposit-account:read:user"
+    head:
+      responses:
+        200:
+          description: "200 OK"
+      security:
+      - OAuth - Provider for ALM:
+        - "Deposit-account:read:user"
+definitions:
+  requestBody:
+    type: "object"
+    properties:
+      data:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            account_number:
+              type: "string"
+              description: "Número de cuenta"
+              example: "03701111111"
+            account_type:
+              type: "string"
+              description: "Tipo de cuenta.\n  - 7 - Ahorron ALM\n  - 1 - Corriente"
+              example: "7"
+            customer_documentNumber:
+              type: "string"
+              description: "Número de identificación del cliente"
+              example: "10111228"
+            customer_password:
+              type: "string"
+              description: "Contraseña del cliente cifrada o pinblock"
+              example: "1658E8CA1B665D80C5"
+  successResponse:
+    type: "object"
+    required:
+    - "meta"
+    - "data"
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      data:
+        type: "array"
+        uniqueItems: true
+        items:
+          type: "object"
+          required:
+          - "header"
+          - "status"
+          properties:
+            header:
+              $ref: "#/definitions/headerData"
+            status:
+              type: "object"
+              required:
+              - "code"
+              - "description"
+              description: "Descripción funcional que indica el estado de la transacció\
+                n"
+              properties:
+                code:
+                  type: "string"
+                  description: "Código de estado de la transacción"
+                  example: "000"
+                description:
+                  type: "string"
+                  description: "Descripción del estado de la transacción"
+                  example: "Transacción exitosa"
+            customer_documentNumber:
+              type: "string"
+              description: "Número de identificación del cliente"
+              example: "10111228"
+            account_number:
+              type: "string"
+              description: "Número de cuenta"
+              example: "03701111111"
+            account_type:
+              type: "string"
+              description: "Tipo de cuenta.\n  - 7 - Ahorros ALM\n  - 1 - Corriente"
+              example: "7"
+            account_description:
+              type: "string"
+              description: "Descripción de la cuenta. \n- Ahorros\n- Corriente"
+              enum:
+              - "Ahorros"
+              - "Corriente"
+              example: "Ahorros"
+            account_availableBalance:
+              type: "number"
+              format: "float"
+              description: "Saldo disponible de la cuenta"
+              example: 3499999.99
+      links:
+        $ref: "#/definitions/topLevelLinks"
+    additionalProperties: false
+  failure:
+    type: "object"
+    required:
+    - "meta"
+    - "errors"
+    properties:
+      meta:
+        $ref: "#/definitions/meta"
+      errors:
+        type: "array"
+        uniqueItems: true
+        items:
+          $ref: "#/definitions/error"
+    additionalProperties: false
+  meta:
+    description: "Non-standard meta-information that can not be represented realtion\
+      \ with data"
+    type: "object"
+    required:
+    - "_messageId"
+    - "_version"
+    - "_requestDate"
+    properties:
+      _messageId:
+        type: "string"
+        example: "c4e6bd04-5149-11e7-b114-b2f933d5fe66"
+      _version:
+        type: "string"
+        example: "1.0"
+      _requestDate:
+        type: "string"
+        format: "date-time"
+        example: "2017-01-24T05:00:00.000Z"
+      _responseSize:
+        type: "integer"
+        example: 1
+      _clientRequest:
+        type: "string"
+        example: "acxff62e-6f12-42de-9012-3e7304418abd"
+      _clientIpAddress:
+        type: "string"
+        example: "127.0.0.1"
+      _echo:
+        type: "string"
+        example: "acxff62e-6f12-42de-9012-3e7304418abd"
+    additionalProperties: true
+  topLevelLinks:
+    description: "URLs related to the primary data."
+    type: "object"
+    allOf:
+    - $ref: "#/definitions/links"
+  links:
+    description: "A resource object **MAY** contain references to other resource objects"
+    type: "object"
+    properties:
+      self:
+        description: "A self member, whose value is a URL for the relationship data"
+        type: "string"
+        format: "uri"
+      related:
+        type: "string"
+        format: "uri"
+    additionalProperties: false
+  headerData:
+    description: "The \"type\" and \"id\" for each data."
+    type: "object"
+    required:
+    - "type"
+    - "id"
+    properties:
+      type:
+        type: "string"
+        example: "AccountAvailableBalance"
+      id:
+        type: "string"
+    additionalProperties: false
+  error:
+    type: "object"
+    required:
+    - "code"
+    - "detail"
+    properties:
+      id:
+        description: "A unique identifier for this particular occurrence of the problem."
+        type: "string"
+        example: "5f2d287a-3a3f-11e7-a919-92ebcb67fe33"
+      href:
+        description: "A URI that **MAY** yield further details about this particular\
+          \ occurrence of the problem."
+        type: "string"
+        example: "https://tools.ietf.org/html/rfc7231#section-6.5.4"
+      status:
+        description: "The HTTP status code applicable to this problem, expressed as\
+          \ a string value."
+        type: "string"
+        example: 404
+      code:
+        description: "An application-specific error code, expressed as a string value."
+        type: "string"
+        example: "BP404"
+      title:
+        description: "A short, human-readable summary of the problem. It **SHOULD\
+          \ NOT** change from occurrence to occurrence of the problem, except for\
+          \ purposes of localization."
+        type: "string"
+        example: "Not Found"
+      detail:
+        description: "A human-readable explanation specific to this occurrence of\
+          \ the problem."
+        type: "string"
+        example: "Requested resource could not be found"
+    additionalProperties: false
+schemes:
+- "https"
+consumes:
+- "application/vnd.bancolombia.v1+json"
+produces:
+- "application/vnd.bancolombia.v1+json"
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: "specified"
+  cors:
+    enabled: true
+  properties:
+    tlsProfile:
+      value: ""
+      description: ""
+      encoded: false
+    Endpoint:
+      value: "https://rest-alm-transactions.herokuapp.com/"
+      description: ""
+      encoded: false
+    catalogName:
+      value: "development"
+      description: ""
+      encoded: false
+    systemId:
+      value: "APIC"
+      description: ""
+      encoded: false
+  catalogs:
+    Testing:
+      properties:
+        systemId: "APIC"
+        Endpoint: "https://cap-sg-prd-5.integration.ibmcloud.com:18880/ALM/ALMService/jsonWS/queryMovements"
+        tlsProfile: "gw-qa-bancolombia"
+        catalogName: "testing"
+    Development:
+      properties:
+        catalogName: "development"
+        systemId: "APIC"
+        Endpoint: "https://cap-sg-prd-5.integration.ibmcloud.com:18880/ALM/ALMService/jsonWS/queryMovements"
+        tlsProfile: "gw-qa-bancolombia"
+    Production:
+      properties:
+        systemId: "APIC"
+        Endpoint: "http://10.25.247.216:8089/mock"
+        tlsProfile: "gw-prod-bancolombia"
+    SandBox Technical:
+      properties:
+        catalogName: "sandbox-tec"
+        Endpoint: "https://cap-sg-prd-5.integration.ibmcloud.com:18880/ALM/ALMService/jsonWS/queryMovements"
+        tlsProfile: "gw-qa-bancolombia"
+    Production Exposition Gateway:
+      properties:
+        catalogName: "production-gwe"
+        Endpoint: "https://alm.bancolombia.com/ALM/ALMService/jsonWS/queryMovements"
+  extensions:
+    API-Protocol: "1.0.0"
+    API-Authors: "1.0.0"
+  gateway: "datapower-gateway"
+  assembly:
+    execute:
+    - activity-log:
+        title: "activity-log"
+        content: "payload"
+        error-content: "payload"
+        version: "1.0.0"
+    - switch:
+        title: "switch"
+        case:
+        - condition: "((request.verb==='POST')&&(api.operation.path==='/account-balances/actions/search'))"
+          execute:
+          - xslt:
+              title: "generate-uuid"
+              input: false
+              version: "1.0.0"
+              source: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xsl:stylesheet\
+                \ version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"\
+                \ xmlns:apim=\"http://www.ibm.com/apimanagement\" xmlns:dp=\"http://www.datapower.com/extensions\"\
+                \ extension-element-prefixes=\"dp func apim\" exclude-result-prefixes=\"\
+                dp\">\n\t<!-- OBLIGATORY - Contains the APIM functions -->\n\t<xsl:include\
+                \ href=\"local:///isp/policy/apim.custom.xsl\" />\n\t<xsl:import href=\"\
+                local:///isp/policy/apim.context.xsl\" />\n\t<xsl:import href=\"local:///isp/policy/assembly-util.xsl\"\
+                \ />\n\t<xsl:template match=\"/\">\n\t\t<!-- call functions datapowerd\
+                \ -->\n\t\t<xsl:variable name=\"uuid\" select=\"dp:generate-uuid()\"\
+                />\n\t\t<xsl:call-template name=\"apim:setVariable\">\n\t\t\t<xsl:with-param\
+                \ name=\"varName\" select=\"'ctx.uuid'\" />\n\t\t\t<xsl:with-param\
+                \ name=\"value\" select=\"$uuid\" />\n\t\t</xsl:call-template>\n\t\
+                </xsl:template>\n</xsl:stylesheet>"
+          - gatewayscript:
+              title: "init-meta"
+              version: "1.0.0"
+              source: "initMeta();\n\nvar link = \"https://\" +\n    apim.getvariable('api.endpoint.hostname')\
+                \ + \"/\" +\n    apim.getvariable('api.org.name') + \"/\" +\n    apim.getvariable('env.path')\
+                \ + \"/\" +//Catalogo en el que se encuentra el producto\n    apim.getvariable('api.root')\
+                \ +//Base Path\n    apim.getvariable('api.operation.path');\n    \
+                \   \napim.setvariable('ctx.selfLink',link);\n\nfunction initMeta(){\n\
+                \    let echo = apim.getvariable('request.headers.echo');\n    let\
+                \ request_date = apim.getvariable('request.headers.request-date');\n\
+                \    let client_ip_address = apim.getvariable('request.headers.client-ip-address');\n\
+                \    let message_id = apim.getvariable('request.headers.message-id');\n\
+                \    \n    validateString(\"message-id\", message_id, 1, 12, true);\n\
+                \    validateDate(\"request-date\", request_date, true);\n    \n \
+                \   let meta = {\n        _messageId: message_id ? message_id : apim.getvariable('ctx.uuid'),\n\
+                \        _version: '1.0',\n        _requestDate: request_date ? request_date\
+                \ : getRequestDate(),\n        _responseSize: 1,\n        _clientRequest:\
+                \ apim.getvariable('client.app.id')\n    }\n    \n    if(validateString(\"\
+                client-ip-address\",client_ip_address,7,15,true) && isValidIP(\"client-ip-address\"\
+                ,client_ip_address)){\n        meta._clientIpAddress = client_ip_address;\n\
+                \    }\n    \n    if(echo && validateString(\"echo\",echo,12,36,false)){\n\
+                \        meta._echo = echo;\n    }\n    \n    apim.setvariable(\"\
+                ctx.meta\", meta);\n}\n\n/**\n * Valida si un parmetro tiene el formato\
+                \ IPV4.\n * \n * @param   {string}    name                Nombre del\
+                \ parámetro a validar\n * @param   {string}    value             \
+                \  Valor del parámetro a validar\n * \n * @return {bool} true si el\
+                \ parámetro cumple con las condiciones establecidad de formato y longitud,\
+                \ false si no.\n * @throws {ParametersException} Si el parametro es\
+                \ inválido se lanza la excepción\n */\nfunction isValidIP(name, value){\n\
+                \    var message;\n    var patternStr = /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\\
+                .){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/;\n    if(!patternStr.test(value)){\n\
+                \        message = 'Parámetro '+name+' inválido';\n        throwError('ParametersException',\
+                \ message, '400');\n        return false;\n    }\n    return true;\n\
+                }\n\n/**\n * Valida si un parámetro tipo string es valido.\n * \n\
+                \ * Valida si un parámetro tipo string tiene la longitud, formato\
+                \ y obligatoriedad establecidas.\n * \n * @param   {string}    name\
+                \                Nombre del parámetro a validar\n * @param   {string}\
+                \    value               Valor del parámetro a validar\n * @param\
+                \   {number}    [minLength=0]       Lingitud minima permitida para\
+                \ el valor del parámetro\n * @param   {number}    [maxLength=256]\
+                \     Longitud máxima permitida para el valor del parámetro\n * @param\
+                \   {bool}      [required=false]    Longitud máxima permitida para\
+                \ el valor del parámetro\n * \n * @return {bool} true si el parámetro\
+                \ cumple con las condiciones establecidad de formato y longitud, false\
+                \ si no.\n * @throws {ParametersException} Si el parametro es invá\
+                lido se lanza la excepción\n */\nfunction validateString(name, value,\
+                \ minLength=0, maxLength=256, required=false){\n    var message;\n\
+                \    var patternStr = /^[0-9a-zA-ZáéíóúñÁÉÍÚÓÑ#.,-_\\s]+$/;\n    \n\
+                \    if(value && value != \"undefined\"){\n        value = value.trim();\n\
+                \        \n        if(value.length < minLength || value.length > maxLength){\n\
+                \            message = 'Longitud del parámetro '+name+' inválida';\n\
+                \        }else if(!patternStr.test(value)){\n            message =\
+                \ 'Parámetro '+name+' inválido';\n        }\n    }else if (required){\n\
+                \        message = 'Parámetro '+name+' requerido';\n    }\n    \n\
+                \    if(message){\n        throwError('ParametersException', message,\
+                \ '400');\n        return false;\n    }\n    \n    return true;\n\
+                }\n\n\n\n/**\n * Valida si un string con formato de fecha es valido.\n\
+                \ * \n * Permite valores con los formatos YYYY-MM-DD, YYYY-MM-DDThh:mm:ss,\
+                \ YYYY-MM-DDThh:mm:ss.sssZ y YYYY-MM-DDThh:mm:ss.sss.\n * \n * @param\
+                \   {string}    name                Nombre del parámetro a validar\n\
+                \ * @param   {string}    value               Valor del parámetro a\
+                \ validar\n * @param   {bool}      [required=false]    Longitud má\
+                xima permitida para el valor del Parámetro\n * \n * @return {bool}\
+                \ true si el parámetro cumple con las condiciones establecidad de\
+                \ formato y longitud, false si no.\n * @throws {ParametersException}\
+                \ Si el parametro es inválido se lanza la excepción\n */\nfunction\
+                \ validateDate(name, value, required=false){\n    var message;\n \
+                \   var patternStr = /^([0-9]{4})-(1[0-2]|0[1-9])-(0[1-9]|[12][0-9]|3[01])(T([01][0-9]|2[0-3])((:[0-5][0-9]){2})(\\\
+                .[0-9]{3})?Z?)?$/;\n    \n    if(value && value != \"undefined\"){\n\
+                \        value = value.trim();\n        if(!patternStr.test(value)){\n\
+                \            message = 'Parámetro '+name+' inválido';\n        }\n\
+                \    }else if (required){\n        message = 'Parámetro '+name+' requerido';\n\
+                \    }\n    \n    if(message){\n        throwError('ParametersException',\
+                \ message, '400');\n        return false;\n    }\n    \n    return\
+                \ true;\n}\n\n//Retorna la url del endpoint\n\n\n//Lanza excepciones\
+                \ y guarda el codigo y la descripcion del error en una variable de\
+                \ contexto\nfunction throwError(errorName, description, code){\n \
+                \   apim.setvariable(\"ctx.errorData\", {description: description,\
+                \ code: code});\n    description = description || \"Internal Error\"\
+                ;\n    code = code || \"500\";\n    apim.error(errorName,code,description,description);\n\
+                }\n\n//Se obtiene la fecha actual del sistema\nfunction getRequestDate()\
+                \ {\n    var requestDate = apim.getvariable('ctx.requestDate');\n\
+                \    if(!requestDate || requestDate == \"undefined\"){\n        var\
+                \ systemTime = new Date();\n        systemTime = new Date(systemTime.getTime()\
+                \ - (3600 * 5000)).toISOString();\n        apim.setvariable('ctx.requestDate',systemTime);\n\
+                \        return systemTime;\n    }else{\n        return requestDate;\n\
+                \    }\n}\n\nfunction decimalConvert(date){\n    return Number.parseFloat(parseFloat(date.replace(/-/g,\
+                \ '').replace(/T/g, '').replace(/:/g, '')));\n}"
+          - gatewayscript:
+              title: "validate-parameters"
+              version: "1.0.0"
+              source: "var requestBody = apim.getvariable('request.body');\r\n \r\n\
+                if(validData(requestBody)){\r\n    var accountInfo = requestBody.data[0];\r\
+                \n    var account_number = accountInfo.account_number;\r\n    var\
+                \ account_type = accountInfo.account_type;\r\n    var customer_documentNumber\
+                \ = accountInfo.customer_documentNumber;\r\n    var customer_password\
+                \ = accountInfo.customer_password;\r\n    \r\n    validateString(\"\
+                account_number\",account_number,1,11,true);\r\n    validateString(\"\
+                account_type\", account_type, 1, 1, true);\r\n    validateString(\"\
+                customer_documentNumber\", customer_documentNumber, 1, 50,true);\r\
+                \n    validateString(\"customer_password\", customer_password, 1,\
+                \ 1024,true);\r\n    \r\n    var data = {\r\n        headerRQ: {\r\
+                \n        appID: 'ALM',\r\n        beanBusiness: 'DetlRQ', \r\n  \
+                \      clientIP: apim.getvariable('ctx.meta._clientIpAddress'),\r\n\
+                \        dateCreated: formatDate(apim.getvariable('ctx.meta._requestDate')),\r\
+                \n        trnUid: apim.getvariable('ctx.meta._messageId'),\r\n   \
+                \     namApp: 'mov',\r\n        userID: customer_documentNumber,\r\
+                \n        userPass: customer_password\r\n    },\r\n    depAcctId:\
+                \ {\r\n        acctId: account_number,\r\n        acctType: account_type,\r\
+                \n        regIni: 1,\r\n        regFin: 5\r\n        }\r\n    }\r\n\
+                \    \r\n    apim.setvariable('message.body', data);\r\n}\r\n\r\n\r\
+                \n\r\n//Lanza excepciones y guarda el codigo y la descripcion del\
+                \ error en una variable de contexto\r\nfunction throwError(errorName,\
+                \ description, code){\r\n    apim.setvariable(\"ctx.errorData\", {description:\
+                \ description, code: code});\r\n    description = description || \"\
+                Internal Error\";\r\n    code = code || \"500\";\r\n    apim.error(errorName,code,description,description);\r\
+                \n}\r\n\r\n/**\r\n * Valida si el objeto del payload de la solicitud\
+                \ es valido.\r\n * \r\n * Valida si objeto del payload se puede procesar\
+                \ normalmente.\r\n * \r\n * @param   {Object}    requestBody     \
+                \    Carga util en formato json\r\n * \r\n * @return {bool} true si\
+                \ el formato del payload es correcto, false si no.\r\n * \r\n * @throws\
+                \ {ParametersException} Si el parametro es inválido se lanza la excepció\
+                n\r\n */\r\nfunction validData(requestBody){\r\n    var valid = true;\r\
+                \n    if(!requestBody){\r\n        throwError(\"ParametersException\"\
+                ,\"Payload inválido\",400);\r\n        valid = false;\r\n    }else{\r\
+                \n        if(!requestBody.hasOwnProperty('data')){\r\n           \
+                \ throwError(\"ParametersException\",\"Parámetro data requerido\"\
+                ,400);\r\n            valid = false;\r\n        }else{\r\n       \
+                \     if(!Array.isArray(requestBody.data) || requestBody.data.length\
+                \ == 0){\r\n                throwError(\"ParametersException\",\"\
+                Parámetro data inválido\",400);\r\n                valid = false;\r\
+                \n            }\r\n        }\r\n    }\r\n    return valid;\r\n}\r\n\
+                \r\n/**\r\n * Valida si un parámetro tipo string es valido.\r\n *\
+                \ \r\n * Valida si un parámetro tipo string tiene la longitud, formato\
+                \ y obligatoriedad establecidas.\r\n * \r\n * @param   {string}  \
+                \  name                Nombre del parámetro a validar\r\n * @param\
+                \   {string}    value               Valor del parámetro a validar\r\
+                \n * @param   {number}    [minLength=0]       Lingitud minima permitida\
+                \ para el valor del parámetro\r\n * @param   {number}    [maxLength=256]\
+                \     Longitud máxima permitida para el valor del parámetro\r\n *\
+                \ @param   {bool}      [required=false]    Longitud máxima permitida\
+                \ para el valor del parámetro\r\n * \r\n * @return {bool} true si\
+                \ el parámetro cumple con las condiciones establecidad de formato\
+                \ y longitud, false si no.\r\n * @throws {ParametersException} Si\
+                \ el parametro es inválido se lanza la excepción\r\n */\r\nfunction\
+                \ validateString(name, value, minLength=0, maxLength=256, required=false){\r\
+                \n    var message;\r\n    var patternStr = /^[0-9a-zA-ZáéíóúñÁÉÍÚÓ\
+                Ñ#@.,-_\\s]+$/;\r\n    \r\n    if(value && value != \"undefined\"\
+                ){\r\n        value = value.trim();\r\n        \r\n        if(value.length\
+                \ < minLength || value.length > maxLength){\r\n            message\
+                \ = 'Longitud del parámetro '+name+' inválida';\r\n        }else if(!patternStr.test(value)){\r\
+                \n            message = 'Parámetro '+name+' inválido';\r\n       \
+                \ }\r\n    }else if (required){\r\n        message = 'Parámetro '+name+'\
+                \ requerido';\r\n    }\r\n    \r\n    if(message){\r\n        throwError('ParametersException',\
+                \ message, '400');\r\n        return false;\r\n    }\r\n    \r\n \
+                \   return true;\r\n}\r\n\r\n// 2019-01-01T12:30:54 -> 20190101123054\r\
+                \nfunction formatDate(date){\r\n    return date.replace(/-/g, '').replace(/T/g,\
+                \ '').replace(/:/g, '');\r\n}"
+          - invoke:
+              title: "invoke"
+              timeout: 60
+              verb: "POST"
+              cache-response: "protocol"
+              cache-ttl: 900
+              stop-on-error:
+              - "ConnectionError"
+              version: "1.0.0"
+              target-url: "$(Endpoint)"
+              tls-profile: "$(tlsProfile)"
+          - gatewayscript:
+              title: "validateResponse"
+              version: "1.0.0"
+              source: "filterHeaders();\r\n\r\nvar bodymessage = apim.getvariable('message.body');\r\
+                \n\r\n\r\nif(bodymessage.headerRS.StatusCode != '000'){\r\n    throwError('BusinessException',bodymessage.headerRS.StatusDesc,bodymessage.headerRS.StatusCode);\r\
+                \n}else{\r\n    //var transactions = getTransactions(bodymessage);\r\
+                \n    apim.setvariable('ctx.meta._responseSize',1);\r\n    var data\
+                \ ={\r\n      meta: apim.getvariable('ctx.meta'),\r\n      data: [\r\
+                \n        {\r\n          header: {\r\n            type: 'AccountAvailableBalance',\r\
+                \n            id: 'AccountAvailableBalance-'+ bodymessage.acctDetl.acctID\r\
+                \n          },\r\n          status: {\r\n            code: bodymessage.headerRS.StatusCode,\r\
+                \n            description: bodymessage.headerRS.StatusDesc\r\n   \
+                \       },\r\n          customer_documentNumber: bodymessage.headerRS.userID,\r\
+                \n          account_number: bodymessage.acctDetl.acctID,\r\n     \
+                \     account_type: bodymessage.acctDetl.acctTypeCode,\r\n       \
+                \   account_description: bodymessage.acctDetl.acctDesc,\r\n      \
+                \    account_availableBalance: decimalConvert(bodymessage.acctDetl.value)\r\
+                \n          //account_transactions: transactions\r\n        }\r\n\
+                \      ],\r\n      links: {\r\n        self: apim.getvariable('ctx.selfLink')\r\
+                \n      }\r\n    }\r\n    apim.setvariable('message.body',data);\r\
+                \n\r\n}\r\n\r\n\r\n/*function getTransactions(messagebody){\r\n  \
+                \  var transaction = [];\r\n    for( var i=0;i<messagebody.acctHist.length;i++){\r\
+                \n        transaction.push({\r\n            transaction_date: formateDateYYYYMMDD(messagebody.acctHist[i].date),\r\
+                \n            transaction_description: messagebody.acctHist[i].description,\r\
+                \n            transaction_amount: decimalConvert(messagebody.acctHist[i].amount)\r\
+                \n        });\r\n    }\r\n    \r\n    return transaction;\r\n}\r\n\
+                */\r\n// 2019/01/25 to 2019-01-25\r\nfunction formateDateYYYYMMDD(stringDate){\r\
+                \n    return new Date(stringDate).toISOString().slice(0,10);\r\n}\r\
+                \n// 23,223,233.99 to 23223233.99\r\nfunction decimalConvert(stringDecimal){\r\
+                \n    return Number.parseFloat(parseFloat(stringDecimal.replace(/,/g,\
+                \ ''))).toFixed(2);\r\n} \r\n\r\nfunction throwError(errorName, description,\
+                \ code){\r\n    apim.setvariable(\"ctx.errorData\", {description:\
+                \ description, code: code});\r\n    description = description || \"\
+                Internal Error\";\r\n    code = code || \"500\";\r\n    apim.error(errorName,code,description,description);\r\
+                \n}\r\n\r\nfunction filterHeaders(){\r\n\tlet header_meta = require('header-metadata');\r\
+                \n\theader_meta.current.headers = {\r\n\t\t\"Content-Type\": \"application/vnd.bancolombia.v1+json;\
+                \ charset=utf-8\",\r\n\t\t\"X-API-Version\": apim.getvariable('api.version'),\r\
+                \n\t\t\"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\r\
+                \n\t\t\"X-Content-Type-Options\": \"nosniff\",\r\n\t}\r\n}\r\n"
+          - map:
+              title: "map"
+              inputs: {}
+              outputs:
+                content-type:
+                  schema:
+                    type: "string"
+                  variable: "message.headers.content-type"
+              actions:
+              - set: "content-type"
+                default: "application/vnd.bancolombia.v1+json; charset=utf-8"
+              version: "1.0.0"
+        - condition: "((request.verb==='HEAD')&&(api.operation.path==='/account-balances/actions/search'))"
+          execute:
+          - gatewayscript:
+              title: "set-headers"
+              version: "1.0.0"
+              source: "apim.setvariable('message.headers.Accept','application/vnd.bancolombia.v1+json');\r\
+                \napim.setvariable('message.headers.Content-Type','application/vnd.bancolombia.v1+json');\r\
+                \napim.setvariable('message.headers.X-Content-Type-Options','nosniff');\r\
+                \napim.setvariable('message.headers.X-API-Version', apim.getvariable('api.version'));"
+        version: "1.0.0"
+    catch:
+    - errors:
+      - "ParametersException"
+      execute:
+      - gatewayscript:
+          title: "parameters-exception"
+          version: "1.0.0"
+          source: "filterHeaders();\r\n\r\nconst errorData = apim.getvariable('ctx.errorData');\r\
+            \napim.setvariable(\"message.status.code\", errorData.code);\r\n\r\nconst\
+            \ failure = {\r\n    meta: apim.getvariable('ctx.meta'),\r\n    errors:[\r\
+            \n        {\r\n            href: 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\r\
+            \n            status: '400',\r\n            code: 'SA'+'400',\r\n    \
+            \        title: apim.getvariable(\"message.status.reason\"),\r\n     \
+            \       detail: errorData.description\r\n        }\r\n    ]\r\n}\r\n\r\
+            \napim.setvariable(\"message.body\", failure);\r\napim.output(\"application/vnd.bancolombia.v1+json;\
+            \ charset=utf-8\");\r\n\r\nfunction filterHeaders(){\r\n\tlet header_meta\
+            \ = require('header-metadata');\r\n\theader_meta.current.headers = {\r\
+            \n\t\t\"Content-Type\": \"application/vnd.bancolombia.v1+json; charset=utf-8\"\
+            ,\r\n\t\t\"X-API-Version\": apim.getvariable('api.version'),\r\n\t\t\"\
+            X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\r\n\t\t\"X-Content-Type-Options\"\
+            : \"nosniff\",\r\n\t}\r\n}"
+    - errors:
+      - "BusinessException"
+      execute:
+      - gatewayscript:
+          title: "business-exception"
+          version: "1.0.0"
+          source: "filterHeaders();\r\n\r\nconst statusHrefs = {\r\n    '400': 'https://tools.ietf.org/html/rfc7231#section-6.5.1',\r\
+            \n    '404': 'https://tools.ietf.org/html/rfc7231#section-6.5.4',\r\n\
+            \    '409': 'https://tools.ietf.org/html/rfc7231#section-6.5.8',\r\n \
+            \   '500': 'https://tools.ietf.org/html/rfc7231#section-6.6.1',\r\n  \
+            \  '503': 'https://tools.ietf.org/html/rfc7231#section-6.6.4'\r\n}\r\n\
+            \r\n//homologación de códigos de excepción\r\nconst serverCodes = {\r\n\
+            \    '204':'500',\t//Error interno del servidor. Intente de nuevo más\
+            \ tarde.\r\n    '500':'500' //Error interno del servidor. Intente de nuevo\
+            \ más tarde.\r\n}\r\n\r\nconst errorData = apim.getvariable('ctx.errorData');\r\
+            \n\r\n//Se homologa el code en caso de estar identificado\r\nlet code\
+            \ = '';\r\nlet typeError = 'BP';\r\n\r\nif(serverCodes.hasOwnProperty(errorData.code)){\r\
+            \n    code = serverCodes[errorData.code];\r\n    typeError = 'SP';\r\n\
+            }else{\r\n    code = '409';\r\n}\r\n\r\n\r\n//Si no se tiene un title\
+            \ para el code se asigna un code 500\r\nif(!statusHrefs.hasOwnProperty(code)){\r\
+            \n    code = '500';\r\n}\r\n\r\napim.setvariable(\"message.status.code\"\
+            , code);\r\n\r\nlet failure = {\r\n    meta: apim.getvariable('ctx.meta'),\r\
+            \n    errors:[\r\n        {\r\n            href: statusHrefs[code],\r\n\
+            \            status: code,\r\n            code: typeError + errorData.code,\r\
+            \n            title: apim.getvariable(\"message.status.reason\"),\r\n\
+            \            detail: errorData.description\r\n        }\r\n    ]\r\n}\r\
+            \n\r\napim.setvariable(\"message.body\", failure);\r\napim.output(\"application/vnd.bancolombia.v1+json;\
+            \ charset=utf-8\");\r\n\r\nfunction filterHeaders(){\r\n\tlet header_meta\
+            \ = require('header-metadata');\r\n\theader_meta.current.headers = {\r\
+            \n\t\t\"Content-Type\": \"application/vnd.bancolombia.v1+json; charset=utf-8\"\
+            ,\r\n\t\t\"X-API-Version\": apim.getvariable('api.version'),\r\n\t\t\"\
+            X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\r\n\t\t\"X-Content-Type-Options\"\
+            : \"nosniff\",\r\n\t}\r\n}"
+    - errors:
+      - "ConnectionError"
+      execute:
+      - map:
+          title: "map"
+          inputs: {}
+          outputs:
+            output:
+              schema:
+                $ref: "#/definitions/failure"
+              variable: "message.body"
+            content-type:
+              schema:
+                type: "string"
+              variable: "message.headers.content-type"
+          actions:
+          - set: "output.meta._messageId"
+            default: "$(ctx.uuid)"
+          - set: "output.meta._version"
+            default: "1.0"
+          - set: "output.meta._requestDate"
+            default: "$(ctx.requestDate)"
+          - set: "output.meta._responseSize"
+            default: "1"
+          - set: "output.meta._clientRequest"
+            default: "$(client.app.id)"
+          - set: "output.meta._clientIpAddress"
+            default: "$(ctx.meta._clientIpAddress)"
+          - set: "output.meta._echo"
+            default: "$(ctx.meta.echo)"
+          - create: "output.errors"
+            actions:
+            - set: "href"
+              default: "https://tools.ietf.org/html/rfc7231#section-6.6.1"
+            - set: "status"
+              default: "500"
+            - set: "code"
+              default: "SA500"
+            - set: "title"
+              default: "Connection Error"
+            - set: "detail"
+              default: "Connection error"
+          - set: "content-type"
+            default: "application/vnd.bancolombia.v1+json; charset=utf-8"
+          version: "1.0.0"
+    - default:
+      - gatewayscript:
+          title: "default-exception"
+          version: "1.0.0"
+          source: "filterHeaders();\r\n\r\n//Variable que contiene los detalles de\
+            \ la excepción lanzada\r\nconst statusHrefs = {\r\n    '401': 'https://tools.ietf.org/html/rfc7235#section-3.1',\r\
+            \n    '500': 'https://tools.ietf.org/html/rfc7231#section-6.6.1'\r\n}\r\
+            \n\r\nlet code = apim.getvariable(\"message.status.code\");\r\n\r\n//No\
+            \ se muestran detalles técnicos de la excepción a menos que sea por un\
+            \ body de solicitud inválido\r\nlet message = \"\";\r\nlet title = \"\"\
+            ;\r\nlet href = \"https://tools.ietf.org/html/rfc7231#section-6.6.1\"\
+            ;\r\n\r\n\r\nif( ! apim.getvariable('request.authorization')){\r\n   \
+            \ message = \"Error de autorización\";\r\n    code = '401';\r\n    apim.setvariable(\"\
+            message.status.code\", code);\r\n    title = apim.getvariable(\"message.status.reason\"\
+            );\r\n    href = statusHrefs[code];\r\n}else{\r\n    message = \"Error\
+            \ inesperado\";\r\n    code = '500';\r\n    apim.setvariable(\"message.status.code\"\
+            , code);\r\n    title = apim.getvariable(\"message.status.reason\");\r\
+            \n    href = statusHrefs[code];\r\n}\r\n\r\n\r\nlet failure = {\r\n  \
+            \  meta: apim.getvariable('ctx.meta'),\r\n    errors:[\r\n        {\r\n\
+            \            href: href,\r\n            status: code,\r\n            code:\
+            \ 'SA' + code,\r\n            title: title,\r\n            detail: message\r\
+            \n        }\r\n    ]\r\n}\r\n\r\napim.setvariable(\"message.body\", failure);\r\
+            \napim.output(\"application/vnd.bancolombia.v1+json; charset=utf-8\");\r\
+            \n\r\nfunction filterHeaders(){\r\n\tlet header_meta = require('header-metadata');\r\
+            \n\theader_meta.current.headers = {\r\n\t\t\"Content-Type\": \"application/vnd.bancolombia.v1+json;\
+            \ charset=utf-8\",\r\n\t\t\"X-API-Version\": apim.getvariable('api.version'),\r\
+            \n\t\t\"X-RateLimit-Limit\": apim.getvariable('plan.rate-limit'),\r\n\t\
+            \t\"X-Content-Type-Options\": \"nosniff\",\r\n\t}\r\n}"
+tags:
+- name: "Accounts ALM"
+  description: "Operaciones que involucran información de cuentas de Ahorro a la Mano"
+  x-ibm-languages:
+    description:
+      en: "Operations that involves deposit accounts informarion from ALM"
+x-API-Protocol:
+  Protocols: "HTTPS"
+x-API-Authors:
+  Design:
+    name: "Oscar Eduardo Sanchez Laserna"
+    email: "osesanch@bancolombia.com.co"
+  Development:
+    name: "Camilo Perez"
+    email: "caperez@bancolombia.com.co"
+  Review:
+    name: ""
+    email: ""
+x-version-history: []
